@@ -12,8 +12,7 @@ async function main() {
   //to wait to make sure it gets deployed
   await simpleStorage.deployed();
   console.log(`Deployed contract to: ${simpleStorage.address}`);
-  // what happens when we deploy to our hardhat network?
-  console.log(network.config);
+  //console.log(network.config);
 
   //4=> rinkeby chainId; what we do is that we only want to verify if we are on our test net. And w ralso want to make sure we only verify if our ether scan API key exists.
   if (network.config.chainId === 4 && process.env.ETHERSCAN_API_KEY) {
@@ -21,6 +20,14 @@ async function main() {
     // See on etherscan and all these block explorers the instant we deploy the contract and the instant we send the contract, etherscan might not know about the transaction yet, it might take a hot second for ether scan to be up to speed with where the blockchain is. So it's usually best practice to wait for a few blocks to be mined, until you actually run your verification process. We've actually learned how to do this already with the deploy transaction.
     await verify(simpleStorage.address, []);
   }
+  const currentValue = await simpleStorage.retrieve();
+  console.log(`Current Value is: ${currentValue}`);
+
+  // Update the current value
+  const transactionResponse = await simpleStorage.store(7);
+  await transactionResponse.wait(1);
+  const updatedValue = await simpleStorage.retrieve();
+  console.log(`Updated Value is: ${updatedValue}`);
 }
 
 //Since our simple storage doesn't have a constructor, the arguments for simple storage are just gonna be blank. But in the future, when we have contracts that do have constructors, the arguments are going to be populated.
